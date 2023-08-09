@@ -51,9 +51,9 @@ public class RobotContainer {
         // Turning is controlled by the X axis of the right stick.
         new RunCommand(
             () -> m_robotDrive.drive(
-                -MathUtil.applyDeadband(m_driverController.getLeftY(), OIConstants.kDriveDeadband),
-                -MathUtil.applyDeadband(m_driverController.getLeftX(), OIConstants.kDriveDeadband),
-                -MathUtil.applyDeadband(m_driverController.getRightX(), OIConstants.kDriveDeadband),
+                -MathUtil.applyDeadband(m_driverController.getLeftY()*0.25, OIConstants.kDriveDeadband),
+                -MathUtil.applyDeadband(m_driverController.getLeftX()*0.25, OIConstants.kDriveDeadband),
+                -MathUtil.applyDeadband(m_driverController.getRightX()*0.25, OIConstants.kDriveDeadband),
                 true, true),
             m_robotDrive));
   }
@@ -67,11 +67,14 @@ public class RobotContainer {
    * passing it to a
    * {@link JoystickButton}.
    */
+  public boolean doFieldRel = false;
   private void configureButtonBindings() {
     new JoystickButton(m_driverController, Button.kR1.value)
         .whileTrue(new RunCommand(
             () -> m_robotDrive.setX(),
             m_robotDrive));
+    new JoystickButton(m_driverController,Button.kL1.value).whileTrue(new RunCommand(()->m_robotDrive.zeroHeading(),m_robotDrive));
+    new JoystickButton(m_driverController,Button.kCircle.value).whenPressed((new RunCommand(()->this.doFieldRel = !this.doFieldRel,m_robotDrive)));
   }
 
   /**
