@@ -4,10 +4,14 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.commands.AutoDriveDistance;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -19,7 +23,7 @@ public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
   private RobotContainer m_robotContainer;
-
+  public Field2d field = new Field2d();
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -29,6 +33,11 @@ public class Robot extends TimedRobot {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
+    SmartDashboard.putData(this.field);
+    m_robotContainer.m_robotDrive.resetOdometry(new Pose2d(5,5, new Rotation2d()));
+
+    AutoDriveDistance cmd = new AutoDriveDistance(m_robotContainer.m_robotDrive, 1, 0.5, false);
+    SmartDashboard.putData(cmd);
   }
 
   /**
@@ -46,6 +55,7 @@ public class Robot extends TimedRobot {
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
     SmartDashboard.putBoolean("doFieldRel", m_robotContainer.doFieldRel);
+    this.field.setRobotPose(m_robotContainer.m_robotDrive.getPose());
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
