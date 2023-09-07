@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.commands.AutoDriveDistance;
+import frc.robot.commands.AutoPose2DDrive;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -21,7 +22,7 @@ import frc.robot.commands.AutoDriveDistance;
  */
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
-
+  private AutoPose2DDrive test;
   private RobotContainer m_robotContainer;
   public Field2d field = new Field2d();
   /**
@@ -34,10 +35,14 @@ public class Robot extends TimedRobot {
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
     SmartDashboard.putData(this.field);
-    m_robotContainer.m_robotDrive.resetOdometry(new Pose2d(5,5, new Rotation2d()));
-
-    AutoDriveDistance cmd = new AutoDriveDistance(m_robotContainer.m_robotDrive, 1, 0.5, false);
-    SmartDashboard.putData(cmd);
+    this.field.getObject("despos").setPose(new Pose2d()); // use 'getobject' to create a new object on field2d WHY GOD WHY
+    Pose2d desiredPose = this.field.getObject("despose").getPose();
+    desiredPose = new Pose2d(5,5, new Rotation2d());
+    m_robotContainer.m_robotDrive.resetOdometry(new Pose2d(6,6, new Rotation2d()));
+    // AutoDriveDistance cmd = new AutoDriveDistance(m_robotContainer.m_robotDrive, 1, 0.5, false);
+    this.field.getObject("despose").setPose(desiredPose);
+    test = new AutoPose2DDrive(m_robotContainer.m_robotDrive, desiredPose, 1, 1, true);
+    SmartDashboard.putData(test);
   }
 
   /**
@@ -49,6 +54,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
+    this.field.getObject("despos").getPose();
     // Runs the Scheduler.  This is responsible for polling buttons, adding newly-scheduled
     // commands, running already-scheduled commands, removing finished or interrupted commands,
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
@@ -56,6 +62,7 @@ public class Robot extends TimedRobot {
     CommandScheduler.getInstance().run();
     SmartDashboard.putBoolean("doFieldRel", m_robotContainer.doFieldRel);
     this.field.setRobotPose(m_robotContainer.m_robotDrive.getPose());
+    // this.test.setDesiredPose(this.field.getObject("despos").getPose());
   }
 
   /** This function is called once each time the robot enters Disabled mode. */

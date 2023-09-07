@@ -1,5 +1,7 @@
 package frc.robot.commands;
 
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
@@ -11,7 +13,7 @@ public class AutoPose2DDrive extends CommandBase{
     private DriveSubsystem drive;
     private Pose2d startPose;
     private Pose2d desiredPose;
-    private ProfiledPIDController xControl;
+    private PIDController xControl;
     private ProfiledPIDController yControl;
     private ProfiledPIDController rotationControl;
 
@@ -36,9 +38,9 @@ public class AutoPose2DDrive extends CommandBase{
         desiredRot = this.desiredPose.getRotation().getDegrees();
 
         this.fieldRelative = fieldRelative;
-        this.xControl = new ProfiledPIDController(0.2, 0, 0, new Constraints(maxTranslation, 0.2));
-        this.yControl = new ProfiledPIDController(0.2, 0,0, new Constraints(maxTranslation, 0.2));
-        this.rotationControl = new ProfiledPIDController(0.2, 0, 0, new Constraints(maxRotation, 0.2));
+        this.xControl = new PIDController(0.1, 0, 0);
+        this.yControl = new ProfiledPIDController(0.1, 0,0, new Constraints(maxTranslation, 0.2));
+        this.rotationControl = new ProfiledPIDController(0.1, 0, 0, new Constraints(maxRotation, 0.2));
     }
     
     
@@ -47,22 +49,27 @@ public class AutoPose2DDrive extends CommandBase{
     public void initialize() {
         // TODO Auto-generated method stub
         startPose = this.drive.getPose();
+        this.xControl.reset();
+        this.xControl.setSetpoint(0);
+
+        // this.xControl.reset(null);
     }
     @Override
     public void execute() {
         // curPose is the current pose get from drivetrain
         Pose2d curPose = this.drive.getPose();
         
-        // ())Dis gives the robot's current distance from the start(origin)
-        double xDis = curPose.getTranslation().getDistance(this.startPose.getTranslation());
-        double yDis = curPose.getTranslation().getDistance(this.startPose.getTranslation());
-        double rDis = (startPose.getRotation().getDegrees() - curPose.getRotation().getDegrees());
+        // erroe/ delta x gives the distance between current and desried
+        double xDis = curPose.getTranslation().getX() - desiredPose.getTranslation().getX();
+        // double xDis = desiredPose.getTranslation().getX() - curPose.getTranslation().getX();
+        double yDis = curPose.getTranslation().getDistance(this.desiredPose.getTranslation());
+        double rDis = startPose.getRotation().minus(desiredPose.getRotation()).getDegrees(); // TODO: Do rot.minus(rot2)
 
-        double xOutput = xControl.calculate(xDis, desiredX);
+        double xOutput = MathUtil.clamp(xControl.calculate(xDis), -0.5,0.5);
         double yOutput = yControl.calculate(yDis, desiredY);
         double rOutput = rotationControl.calculate(rDis, desiredRot);
 
-        this.drive.drive(xOutput, yOutput, rOutput, this.fieldRelative, false);
+        this.drive.drive(xOutput, 0, 0, this.fieldRelative, false);
 
     }
     @Override
@@ -78,6 +85,10 @@ public class AutoPose2DDrive extends CommandBase{
         boolean atY = (this.desiredY - curPose.getTranslation().getY() <= 0.1);
         boolean atR = (this.desiredRot - curPose.getRotation().getDegrees() <= 0.1);
 
-        return atX && atY && atR;
+        return false;
+    }
+
+    public void setDesiredPose(Pose2d desiredPose){
+        this.desiredPose = desiredPose;
     }
 }
