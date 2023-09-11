@@ -6,12 +6,14 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.commands.AutoDriveDistance;
+import frc.robot.commands.AutoPose2DDrive;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -36,7 +38,10 @@ public class Robot extends TimedRobot {
     SmartDashboard.putData(this.field);
     m_robotContainer.m_robotDrive.resetOdometry(new Pose2d(5,5, new Rotation2d()));
 
-    AutoDriveDistance cmd = new AutoDriveDistance(m_robotContainer.m_robotDrive, 1, 0.5, false);
+    // AutoDriveDistance cmd = new AutoDriveDistance(m_robotContainer.m_robotDrive, 1, 0.5, false);
+    // Pose2d desiredPose = SmartDashboard.getData(null)
+    Pose2d desiredPose = new Pose2d(new Translation2d(1, 1), new Rotation2d(90));
+    AutoPose2DDrive cmd = new AutoPose2DDrive(m_robotContainer.m_robotDrive, desiredPose, 1, 1, false);
     SmartDashboard.putData(cmd);
   }
 
