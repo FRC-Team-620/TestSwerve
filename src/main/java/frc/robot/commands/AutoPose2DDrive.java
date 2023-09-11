@@ -37,7 +37,7 @@ public class AutoPose2DDrive extends CommandBase{
         // TODO: radian/degree?
         desiredRot = this.desiredPose.getRotation().getDegrees();
 
-        this.fieldRelative = fieldRelative;
+        this.\][fieldRelative = fieldRelative;
         this.xControl = new PIDController(0.1, 0, 0);
         this.yControl = new ProfiledPIDController(0.1, 0,0, new Constraints(maxTranslation, 0.2));
         this.rotationControl = new ProfiledPIDController(0.1, 0, 0, new Constraints(maxRotation, 0.2));
